@@ -41,6 +41,8 @@ const URL_OPS =
  ***********************/
 const ZEBRA_BG = Color.dynamic(new Color("#F2F2F7"), new Color("#2C2C2E"));
 const CANCEL_BG = Color.dynamic(new Color("#FFE5E5"), new Color("#3A1E1E"));
+const PRE_BG = Color.dynamic(new Color("#E5F0FF"), new Color("#1E2A3A"));
+const EMB_BG = Color.dynamic(new Color("#E5FFE5"), new Color("#1E3A1E"));
 
 /***********************
  * IATA MAPS
@@ -172,8 +174,8 @@ function destinationIATA(route) {
 
 function statusInfo(obs) {
   const s = (obs || "").toUpperCase();
-  if (s.includes("PRE")) return { text: "PRE" };
-  if (s.includes("EMBAR") || s.includes("ABORD")) return { text: "EMB" };
+  if (s.includes("PRE")) return { text: "PRE", preBoarding: true };
+  if (s.includes("EMBAR") || s.includes("ABORD")) return { text: "EMB", boarding: true };
   if (s.includes("DEMOR")) return { text: "DEM" };
   if (s.includes("CANCEL")) return { text: "CAN", canceled: true };
   return { text: "OK" };
@@ -272,6 +274,8 @@ for (let i = 0; i < flights.length; i++) {
   bg.layoutVertically();
 
   if (f.est.canceled) bg.backgroundColor = CANCEL_BG;
+  else if (f.est.preBoarding) bg.backgroundColor = PRE_BG;
+  else if (f.est.boarding) bg.backgroundColor = EMB_BG;
   else if (i % 2 === 1) bg.backgroundColor = ZEBRA_BG;
 
   bg.cornerRadius = 8;
