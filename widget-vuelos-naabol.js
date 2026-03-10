@@ -39,18 +39,16 @@ const URL_OPS =
 /***********************
  * COLORES – Estilo tablero aeropuerto
  ***********************/
-const BOARD_BG = new Color("#1A1A1A");
-const ROW_BG_ODD = new Color("#222222");
-const ROW_BG_EVEN = new Color("#1A1A1A");
+const BOARD_BG = new Color("#000000");
 const HEADER_COLOR = new Color("#FFD600");
+const COL_HEADER_COLOR = new Color("#00BCD4");
 const TEXT_COLOR = new Color("#FFFFFF");
-const TIME_COLOR = new Color("#FFD600");
 const PRE_COLOR = new Color("#FFD600");
 const EMB_COLOR = new Color("#4CAF50");
 const DEM_COLOR = new Color("#FF3D00");
 const CAN_COLOR = new Color("#FF3D00");
 const OK_COLOR = new Color("#4CAF50");
-const MUTED_COLOR = new Color("#888888");
+const MUTED_COLOR = new Color("#666666");
 
 /***********************
  * IATA MAPS
@@ -299,58 +297,60 @@ const w = new ListWidget();
 w.backgroundColor = BOARD_BG;
 w.setPadding(10, 12, 8, 12);
 
-// Header
+// Header: icono + SALIDAS ... reloj
 const hdr = w.addStack();
 hdr.layoutHorizontally();
 hdr.centerAlignContent();
 const icon = hdr.addText("✈︎");
-icon.font = Font.boldSystemFont(18);
+icon.font = Font.boldSystemFont(20);
 icon.textColor = HEADER_COLOR;
-hdr.addSpacer(6);
-const title = hdr.addText(`SALIDAS`);
-title.font = Font.boldMonospacedSystemFont(16);
+hdr.addSpacer(8);
+const title = hdr.addText("SALIDAS");
+title.font = Font.boldMonospacedSystemFont(18);
 title.textColor = HEADER_COLOR;
 hdr.addSpacer();
 const clock = hdr.addText(hhmm(new Date()));
-clock.font = Font.boldMonospacedSystemFont(16);
+clock.font = Font.boldMonospacedSystemFont(18);
 clock.textColor = HEADER_COLOR;
-
-w.addSpacer(4);
-
-// Separador
-const sep = w.addStack();
-sep.addSpacer();
-const sepLine = sep.addText("━".repeat(30));
-sepLine.font = Font.systemFont(6);
-sepLine.textColor = HEADER_COLOR;
-sep.addSpacer();
 
 w.addSpacer(2);
 
-// Subtítulo aeropuerto
+// Subtítulo: DEPARTURES + aeropuerto
 const sub = w.addStack();
 sub.layoutHorizontally();
+const subDep = sub.addText("DEPARTURES");
+subDep.font = Font.boldMonospacedSystemFont(10);
+subDep.textColor = MUTED_COLOR;
 sub.addSpacer();
-const subTxt = sub.addText(AIRPORT.name.toUpperCase());
-subTxt.font = Font.mediumMonospacedSystemFont(10);
-subTxt.textColor = MUTED_COLOR;
-sub.addSpacer();
+const subAirport = sub.addText(AIRPORT.name.toUpperCase());
+subAirport.font = Font.boldMonospacedSystemFont(10);
+subAirport.textColor = MUTED_COLOR;
 
 w.addSpacer(4);
 
-// Encabezados de columna
+// Encabezados de columna (cyan)
 const COLS = [48, 48, 72, 52, 52];
 const HEAD = ["HORA", "REAL", "VUELO", "EST", "DST"];
 
 const th = w.addStack();
 th.layoutHorizontally();
+th.setPadding(2, 4, 2, 4);
 HEAD.forEach((t, i) => {
   const s = th.addStack();
   s.size = new Size(COLS[i], 0);
   const tx = s.addText(t);
-  tx.font = Font.boldMonospacedSystemFont(9);
-  tx.textColor = HEADER_COLOR;
+  tx.font = Font.boldMonospacedSystemFont(10);
+  tx.textColor = COL_HEADER_COLOR;
 });
+
+w.addSpacer(2);
+
+// Línea separadora
+const sep = w.addStack();
+sep.setPadding(0, 4, 0, 4);
+const sepLine = sep.addText("─".repeat(34));
+sepLine.font = Font.systemFont(6);
+sepLine.textColor = COL_HEADER_COLOR;
 
 w.addSpacer(3);
 
@@ -358,26 +358,19 @@ w.addSpacer(3);
 for (let i = 0; i < flights.length; i++) {
   const f = flights[i];
   const row = w.addStack();
-  row.layoutVertically();
-  row.backgroundColor = i % 2 === 0 ? ROW_BG_EVEN : ROW_BG_ODD;
-  row.cornerRadius = 3;
+  row.layoutHorizontally();
   row.setPadding(3, 4, 3, 4);
-
-  const r = row.addStack();
-  r.layoutHorizontally();
 
   const vals = [hhmm(f.prog), hhmm(f.real), f.vuelo, f.est.text, f.dest];
 
   vals.forEach((val, j) => {
-    const s = r.addStack();
+    const s = row.addStack();
     s.size = new Size(COLS[j], 0);
     const t = s.addText(val);
     t.font = Font.mediumMonospacedSystemFont(12);
 
-    // Colores por columna
-    if (j <= 1) {
-      t.textColor = TIME_COLOR;
-    } else if (j === 3) {
+    // Solo el estado tiene color, el resto blanco
+    if (j === 3) {
       if (f.est.preBoarding) t.textColor = PRE_COLOR;
       else if (f.est.boarding) t.textColor = EMB_COLOR;
       else if (f.est.delayed) t.textColor = DEM_COLOR;
@@ -391,7 +384,7 @@ for (let i = 0; i < flights.length; i++) {
   w.addSpacer(1);
 }
 
-w.addSpacer(4);
+w.addSpacer();
 const footer = w.addText(`UPD ${hhmm(new Date())}`);
 footer.font = Font.mediumMonospacedSystemFont(8);
 footer.textColor = MUTED_COLOR;
