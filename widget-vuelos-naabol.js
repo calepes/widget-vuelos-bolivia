@@ -37,13 +37,20 @@ const URL_OPS =
   `https://fids.naabol.gob.bo/Fids/operativo/vuelos?aero=${AIRPORT.query}&tipo=S`;
 
 /***********************
- * COLORES
+ * COLORES – Estilo tablero aeropuerto
  ***********************/
-const ZEBRA_BG = Color.dynamic(new Color("#F2F2F7"), new Color("#2C2C2E"));
-const CANCEL_BG = Color.dynamic(new Color("#FFE5E5"), new Color("#3A1E1E"));
-const PRE_COLOR = Color.dynamic(new Color("#007AFF"), new Color("#64B5F6"));
-const EMB_COLOR = Color.dynamic(new Color("#34C759"), new Color("#81C784"));
-const DEM_COLOR = Color.dynamic(new Color("#FF3B30"), new Color("#FF6961"));
+const BOARD_BG = new Color("#1A1A1A");
+const ROW_BG_ODD = new Color("#222222");
+const ROW_BG_EVEN = new Color("#1A1A1A");
+const HEADER_COLOR = new Color("#FFD600");
+const TEXT_COLOR = new Color("#FFFFFF");
+const TIME_COLOR = new Color("#FFD600");
+const PRE_COLOR = new Color("#FFD600");
+const EMB_COLOR = new Color("#4CAF50");
+const DEM_COLOR = new Color("#FF3D00");
+const CAN_COLOR = new Color("#FF3D00");
+const OK_COLOR = new Color("#4CAF50");
+const MUTED_COLOR = new Color("#888888");
 
 /***********************
  * IATA MAPS
@@ -286,69 +293,108 @@ const flights = [...flightsFromItin, ...flightsFromOps]
   .slice(0, MAX_FLIGHTS);
 
 /***********************
- * WIDGET FINAL (SIN CAMBIOS)
+ * WIDGET – Estilo tablero aeropuerto
  ***********************/
 const w = new ListWidget();
-w.setPadding(14, 16, 12, 16);
+w.backgroundColor = BOARD_BG;
+w.setPadding(10, 12, 8, 12);
 
-const h = w.addStack();
-h.addText("✈️").font = Font.systemFont(20);
-h.addSpacer(6);
-h.addText(`Salidas · ${AIRPORT.name}`).font = Font.boldSystemFont(17);
+// Header
+const hdr = w.addStack();
+hdr.layoutHorizontally();
+hdr.centerAlignContent();
+const icon = hdr.addText("✈︎");
+icon.font = Font.boldSystemFont(18);
+icon.textColor = HEADER_COLOR;
+hdr.addSpacer(6);
+const title = hdr.addText(`SALIDAS`);
+title.font = Font.boldMonospacedSystemFont(16);
+title.textColor = HEADER_COLOR;
+hdr.addSpacer();
+const clock = hdr.addText(hhmm(new Date()));
+clock.font = Font.boldMonospacedSystemFont(16);
+clock.textColor = HEADER_COLOR;
 
-w.addSpacer(8);
+w.addSpacer(4);
 
-const COLS = [52, 52, 78, 60, 56];
-const HEAD = ["PROG", "REAL", "VUELO", "EST", "DST"];
+// Separador
+const sep = w.addStack();
+sep.addSpacer();
+const sepLine = sep.addText("━".repeat(30));
+sepLine.font = Font.systemFont(6);
+sepLine.textColor = HEADER_COLOR;
+sep.addSpacer();
+
+w.addSpacer(2);
+
+// Subtítulo aeropuerto
+const sub = w.addStack();
+sub.layoutHorizontally();
+sub.addSpacer();
+const subTxt = sub.addText(AIRPORT.name.toUpperCase());
+subTxt.font = Font.mediumMonospacedSystemFont(10);
+subTxt.textColor = MUTED_COLOR;
+sub.addSpacer();
+
+w.addSpacer(4);
+
+// Encabezados de columna
+const COLS = [48, 48, 72, 52, 52];
+const HEAD = ["HORA", "REAL", "VUELO", "EST", "DST"];
 
 const th = w.addStack();
 th.layoutHorizontally();
 HEAD.forEach((t, i) => {
   const s = th.addStack();
   s.size = new Size(COLS[i], 0);
-  s.centerAlignContent();
   const tx = s.addText(t);
-  tx.font = Font.systemFont(11);
-  tx.textOpacity = 0.5;
+  tx.font = Font.boldMonospacedSystemFont(9);
+  tx.textColor = HEADER_COLOR;
 });
 
-w.addSpacer(4);
+w.addSpacer(3);
 
+// Filas de vuelos
 for (let i = 0; i < flights.length; i++) {
   const f = flights[i];
-  const bg = w.addStack();
-  bg.layoutVertically();
+  const row = w.addStack();
+  row.layoutVertically();
+  row.backgroundColor = i % 2 === 0 ? ROW_BG_EVEN : ROW_BG_ODD;
+  row.cornerRadius = 3;
+  row.setPadding(3, 4, 3, 4);
 
-  if (f.est.canceled) bg.backgroundColor = CANCEL_BG;
-  else if (i % 2 === 1) bg.backgroundColor = ZEBRA_BG;
-
-  bg.cornerRadius = 8;
-  bg.setPadding(3, 6, 3, 6);
-
-  const r = bg.addStack();
+  const r = row.addStack();
   r.layoutHorizontally();
 
-  [hhmm(f.prog), hhmm(f.real), f.vuelo, f.est.text, f.dest].forEach((val, j) => {
+  const vals = [hhmm(f.prog), hhmm(f.real), f.vuelo, f.est.text, f.dest];
+
+  vals.forEach((val, j) => {
     const s = r.addStack();
     s.size = new Size(COLS[j], 0);
     const t = s.addText(val);
-    t.font = j <= 2
-      ? Font.mediumMonospacedSystemFont(13)
-      : Font.systemFont(12);
-    if (j === 3) {
+    t.font = Font.mediumMonospacedSystemFont(12);
+
+    // Colores por columna
+    if (j <= 1) {
+      t.textColor = TIME_COLOR;
+    } else if (j === 3) {
       if (f.est.preBoarding) t.textColor = PRE_COLOR;
       else if (f.est.boarding) t.textColor = EMB_COLOR;
       else if (f.est.delayed) t.textColor = DEM_COLOR;
+      else if (f.est.canceled) t.textColor = CAN_COLOR;
+      else t.textColor = OK_COLOR;
+    } else {
+      t.textColor = TEXT_COLOR;
     }
   });
 
-  w.addSpacer(2);
+  w.addSpacer(1);
 }
 
 w.addSpacer(4);
-const footer = w.addText(`Actualizado ${hhmm(new Date())}`);
-footer.font = Font.systemFont(10);
-footer.textOpacity = 0.45;
+const footer = w.addText(`UPD ${hhmm(new Date())}`);
+footer.font = Font.mediumMonospacedSystemFont(8);
+footer.textColor = MUTED_COLOR;
 
 Script.setWidget(w);
 Script.complete();
