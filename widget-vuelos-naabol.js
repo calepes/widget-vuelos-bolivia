@@ -43,7 +43,7 @@ const BOARD_BG = new Color("#0A0A0A");
 const CARD_BG = new Color("#1C1C1E");
 const HEADER_COLOR = new Color("#FFD600");
 const COL_HEADER_COLOR = new Color("#00BCD4");
-const TEXT_COLOR = new Color("#FFFFFF");
+const TEXT_COLOR = new Color("#FFD600");
 const PRE_COLOR = new Color("#FFD600");
 const EMB_COLOR = new Color("#4CAF50");
 const DEM_COLOR = new Color("#FF3D00");
@@ -318,10 +318,10 @@ clock.textColor = HEADER_COLOR;
 w.addSpacer(6);
 
 // Helper: añade un grupo de flaps (letra por letra)
-const CHAR_W = 14;
-const FLAP_H = 20;
-const FONT_SZ = 12;
-const GRP_GAP = 4;
+const CHAR_W = 13;
+const FLAP_H = 19;
+const FONT_SZ = 11;
+const GRP_GAP = 3;
 
 function addFlapGroup(parent, text, color) {
   const grp = parent.addStack();
@@ -330,7 +330,7 @@ function addFlapGroup(parent, text, color) {
   for (const ch of text) {
     if (ch === ":") {
       const sep = grp.addStack();
-      sep.size = new Size(7, FLAP_H);
+      sep.size = new Size(6, FLAP_H);
       sep.centerAlignContent();
       const s = sep.addText(":");
       s.font = Font.boldMonospacedSystemFont(FONT_SZ);
@@ -341,26 +341,33 @@ function addFlapGroup(parent, text, color) {
       flap.backgroundColor = CARD_BG;
       flap.cornerRadius = 2;
       flap.centerAlignContent();
-      const t = flap.addText(ch);
-      t.font = Font.boldMonospacedSystemFont(FONT_SZ);
-      t.textColor = color;
+      if (ch !== " ") {
+        const t = flap.addText(ch);
+        t.font = Font.boldMonospacedSystemFont(FONT_SZ);
+        t.textColor = color;
+      }
     }
   }
 }
 
-// Columnas: HORA, REAL, VUELO, DST, EST
-const COL_CHARS = [5, 5, 5, 3, 3]; // incluye ":" en HORA/REAL
+// Columnas fijas: HORA(5), REAL(5), VUELO(6), DST(4), EST(3)
+// Cards por columna (sin contar ":")
+const COL_CARDS = [4, 4, 6, 4, 3];
+const COL_HAS_COLON = [true, true, false, false, false];
 const COL_LABELS = ["HORA", "REAL", "VUELO", "DST", "EST"];
+
+function colWidth(i) {
+  const cards = COL_CARDS[i];
+  const w = cards * CHAR_W + (cards - 1);
+  return COL_HAS_COLON[i] ? w + 6 : w;
+}
 
 const th = w.addStack();
 th.layoutHorizontally();
 th.spacing = GRP_GAP;
 COL_LABELS.forEach((label, i) => {
-  const hasColon = i < 2;
-  const nCards = hasColon ? COL_CHARS[i] - 1 : COL_CHARS[i];
-  const colW = nCards * CHAR_W + (nCards - 1) + (hasColon ? 7 : 0);
   const s = th.addStack();
-  s.size = new Size(colW, 0);
+  s.size = new Size(colWidth(i), 0);
   s.centerAlignContent();
   const tx = s.addText(label);
   tx.font = Font.boldMonospacedSystemFont(8);
@@ -369,20 +376,21 @@ COL_LABELS.forEach((label, i) => {
 
 w.addSpacer(4);
 
-// Filas de vuelos – letra por letra
+// Filas de vuelos – letra por letra con cards libres
 for (let i = 0; i < flights.length; i++) {
   const f = flights[i];
   const row = w.addStack();
   row.layoutHorizontally();
   row.spacing = GRP_GAP;
 
-  const realStr = f.real ? hhmm(f.real) : "···";
+  // REAL: sin ":" cuando no hay dato, solo "···" con card libre
+  const realStr = f.real ? hhmm(f.real) : " ··· ";
 
   const vals = [
     hhmm(f.prog),
     realStr,
-    f.vuelo.padEnd(5).slice(0, 5),
-    f.dest.padEnd(3).slice(0, 3),
+    f.vuelo.padEnd(6).slice(0, 6),
+    f.dest.padEnd(4).slice(0, 4),
     f.est.text.padEnd(3).slice(0, 3)
   ];
 
