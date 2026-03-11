@@ -350,11 +350,11 @@ function addFlapGroup(parent, text, color) {
   }
 }
 
-// Columnas fijas: HORA(5), REAL(5), VUELO(6), DST(4), EST(3)
+// Columnas fijas: HORA(5), VUELO(6), DST(4), EST(3)
 // Cards por columna (sin contar ":")
-const COL_CARDS = [4, 4, 6, 4, 3];
-const COL_HAS_COLON = [true, true, false, false, false];
-const COL_LABELS = ["HORA", "REAL", "VUELO", "DST", "EST"];
+const COL_CARDS = [4, 6, 4, 3];
+const COL_HAS_COLON = [true, false, false, false];
+const COL_LABELS = ["HORA", "VUELO", "DST", "EST"];
 
 function colWidth(i) {
   const cards = COL_CARDS[i];
@@ -383,11 +383,8 @@ for (let i = 0; i < flights.length; i++) {
   row.layoutHorizontally();
   row.spacing = GRP_GAP;
 
-  const realStr = f.real ? hhmm(f.real) : "     ";
-
   const vals = [
     hhmm(f.prog),
-    realStr,
     f.vuelo.padEnd(6).slice(0, 6),
     f.dest.padEnd(4).slice(0, 4),
     f.est.text.padEnd(3).slice(0, 3)
@@ -400,7 +397,7 @@ for (let i = 0; i < flights.length; i++) {
   else if (f.est.canceled) estColor = CAN_COLOR;
   else estColor = OK_COLOR;
 
-  const colors = [TEXT_COLOR, TEXT_COLOR, TEXT_COLOR, TEXT_COLOR, estColor];
+  const colors = [TEXT_COLOR, TEXT_COLOR, TEXT_COLOR, estColor];
 
   vals.forEach((val, j) => {
     addFlapGroup(row, val, colors[j]);
