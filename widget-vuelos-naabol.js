@@ -48,7 +48,7 @@ const PRE_COLOR = new Color("#FFD600");
 const EMB_COLOR = new Color("#4CAF50");
 const DEM_COLOR = new Color("#FF3D00");
 const CAN_COLOR = new Color("#FF3D00");
-const OK_COLOR = new Color("#4CAF50");
+const OK_COLOR = new Color("#FFFFFF");
 const MUTED_COLOR = new Color("#555555");
 
 /***********************
