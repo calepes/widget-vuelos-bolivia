@@ -185,10 +185,11 @@ Los estados se normalizan a códigos cortos.
 | OK | Normal / Sin observación |
 
 ### Reglas visuales:
-- **PRE** → texto azul
-- **EMB** → texto verde
-- **DEM** → texto rojo
-- **CAN** → fila con fondo rojo
+- **PRE** → texto amarillo (`#FFD600`)
+- **EMB** → texto verde (`#4CAF50`)
+- **DEM** → texto rojo (`#FF3D00`)
+- **CAN** → texto rojo (`#FF3D00`)
+- **OK** → texto verde (`#4CAF50`)
 - **PRE** siempre tiene prioridad sobre EMB (evita errores de interpretación)
 
 > El estado se detecta tanto en español (DEMORADO, EMBARQUE) como en inglés (DELAYED, BOARDING).
@@ -242,22 +243,43 @@ VVI (2)
 
 ## 13. Diseño del Widget
 
+### Estilo visual: Flight Board (tablero de aeropuerto)
+
+El widget replica la estética de los tableros de salidas de aeropuerto clásicos (split-flap / FIDS):
+
+- Header: icono SF Symbol `airplane.departure` + "DEPARTURES" en blanco + reloj en verde
+- Fondo negro (`#0A0A0A`) con cards oscuras por carácter (`#1C1C1E`)
+- Cada carácter se renderiza en su propia "card" simulando un flap mecánico
+
 ### Columnas mostradas:
 
-| Columna | Descripción |
-|---------|-------------|
-| PROG | Hora programada |
-| REAL | Hora real |
-| VUELO | Aerolínea + número |
-| EST | Estado |
-| DST | Destino (compactado) |
+| Columna | Label | Descripción |
+|---------|-------|-------------|
+| TIME | TIME | Hora programada (HH:MM) |
+| DST | DST | Destino IATA (compactado) |
+| FLIGHT | FLIGHT | Aerolínea + número de vuelo |
+| REAL | REAL | Hora real (si disponible) |
+| RMKS | RMKS | Estado / Remarks |
+
+### Colores:
+
+| Elemento | Color |
+|----------|-------|
+| Header (DEPARTURES) | Blanco `#FFFFFF` |
+| Títulos de columna | Gris claro `#CCCCCC` |
+| Datos de vuelos | Amarillo `#FFD600` |
+| Reloj | Verde `#4CAF50` |
+| OK / EMB | Verde `#4CAF50` |
+| PRE | Amarillo `#FFD600` |
+| DEM / CAN | Rojo `#FF3D00` |
+| Footer | Gris `#555555` |
 
 ### Características visuales:
-- Diseño ultra denso
-- Zebra rows
+- Estilo split-flap board de aeropuerto
+- Cards individuales por carácter con bordes redondeados
 - Encabezados centrados
-- Fuentes monoespaciadas para horas y vuelos
-- Sin íconos innecesarios
+- Fuentes monoespaciadas (bold) para todo el contenido
+- Icono nativo iOS (SF Symbol) en el header
 - Optimizado para lectura rápida
 
 ---
