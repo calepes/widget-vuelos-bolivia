@@ -353,16 +353,6 @@ function addBoardRow(parent, segments) {
     }
     for (const ch of seg.text) addCard(row, ch, seg.color);
   });
-  addCard(row, " ", TEXT_COLOR);
-}
-
-function addEmptyRow(parent) {
-  const totalChars = COL_CHARS.reduce((a, b) => a + b, 0)
-    + SEP_CARDS * (COL_CHARS.length - 1) + 1;
-  const row = parent.addStack();
-  row.layoutHorizontally();
-  row.spacing = 1;
-  for (let i = 0; i < totalChars; i++) addCard(row, " ", TEXT_COLOR);
 }
 
 // Columnas: TIME(6)=hora+U, DST(3), FLIGHT(6), RMKS(3)
@@ -419,11 +409,6 @@ for (let i = 0; i < flights.length; i++) {
   w.addSpacer(2);
 }
 
-// Rellenar con filas vacías hasta llenar el widget (overflow se recorta)
-const TOTAL_ROWS = 13;
-for (let i = flights.length; i < TOTAL_ROWS; i++) {
-  addEmptyRow(w);
-  w.addSpacer(2);
-}
+w.addSpacer();
 Script.setWidget(w);
 Script.complete();
