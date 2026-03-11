@@ -37,9 +37,10 @@ const URL_OPS =
   `https://fids.naabol.gob.bo/Fids/operativo/vuelos?aero=${AIRPORT.query}&tipo=S`;
 
 /***********************
- * COLORES – Estilo tablero aeropuerto
+ * COLORES – Estilo split-flap board
  ***********************/
-const BOARD_BG = new Color("#000000");
+const BOARD_BG = new Color("#0A0A0A");
+const CARD_BG = new Color("#1C1C1E");
 const HEADER_COLOR = new Color("#FFD600");
 const COL_HEADER_COLOR = new Color("#00BCD4");
 const TEXT_COLOR = new Color("#FFFFFF");
@@ -48,7 +49,7 @@ const EMB_COLOR = new Color("#4CAF50");
 const DEM_COLOR = new Color("#FF3D00");
 const CAN_COLOR = new Color("#FF3D00");
 const OK_COLOR = new Color("#4CAF50");
-const MUTED_COLOR = new Color("#666666");
+const MUTED_COLOR = new Color("#555555");
 
 /***********************
  * IATA MAPS
@@ -328,48 +329,48 @@ subAirport.textColor = MUTED_COLOR;
 
 w.addSpacer(4);
 
-// Encabezados de columna (cyan)
-const COLS = [48, 48, 72, 52, 52];
+// Encabezados de columna (alineados con cards)
 const HEAD = ["HORA", "REAL", "VUELO", "EST", "DST"];
 
 const th = w.addStack();
 th.layoutHorizontally();
-th.setPadding(2, 4, 2, 4);
+th.spacing = 3;
 HEAD.forEach((t, i) => {
   const s = th.addStack();
-  s.size = new Size(COLS[i], 0);
+  s.size = new Size([46, 46, 68, 44, 44][i], 0);
+  s.setPadding(0, 4, 0, 4);
   const tx = s.addText(t);
-  tx.font = Font.boldMonospacedSystemFont(10);
+  tx.font = Font.boldMonospacedSystemFont(9);
   tx.textColor = COL_HEADER_COLOR;
 });
 
-w.addSpacer(2);
+w.addSpacer(4);
 
-// Línea separadora
-const sep = w.addStack();
-sep.setPadding(0, 4, 0, 4);
-const sepLine = sep.addText("─".repeat(34));
-sepLine.font = Font.systemFont(6);
-sepLine.textColor = COL_HEADER_COLOR;
+// Filas de vuelos – estilo split-flap cards
+const CARD_W = [46, 46, 68, 44, 44];
+const GAP = 3;
 
-w.addSpacer(3);
-
-// Filas de vuelos
 for (let i = 0; i < flights.length; i++) {
   const f = flights[i];
   const row = w.addStack();
   row.layoutHorizontally();
-  row.setPadding(3, 4, 3, 4);
+  row.spacing = GAP;
 
   const vals = [hhmm(f.prog), hhmm(f.real), f.vuelo, f.est.text, f.dest];
 
   vals.forEach((val, j) => {
-    const s = row.addStack();
-    s.size = new Size(COLS[j], 0);
-    const t = s.addText(val);
-    t.font = Font.mediumMonospacedSystemFont(12);
+    const card = row.addStack();
+    card.size = new Size(CARD_W[j], 20);
+    card.backgroundColor = CARD_BG;
+    card.cornerRadius = 3;
+    card.setPadding(2, 4, 2, 4);
+    card.centerAlignContent();
 
-    // Solo el estado tiene color, el resto blanco
+    const t = card.addText(val);
+    t.font = Font.mediumMonospacedSystemFont(11);
+    t.lineLimit = 1;
+    t.minimumScaleFactor = 0.8;
+
     if (j === 3) {
       if (f.est.preBoarding) t.textColor = PRE_COLOR;
       else if (f.est.boarding) t.textColor = EMB_COLOR;
@@ -381,7 +382,7 @@ for (let i = 0; i < flights.length; i++) {
     }
   });
 
-  w.addSpacer(1);
+  w.addSpacer(2);
 }
 
 w.addSpacer();
