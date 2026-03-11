@@ -353,6 +353,7 @@ function addBoardRow(parent, segments) {
     }
     for (const ch of seg.text) addCard(row, ch, seg.color);
   });
+  addCard(row, " ", TEXT_COLOR);
 }
 
 // Columnas: TIME(6)=hora+U, DST(3), FLIGHT(6), RMKS(3)
