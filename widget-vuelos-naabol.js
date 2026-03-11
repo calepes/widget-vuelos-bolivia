@@ -383,8 +383,7 @@ for (let i = 0; i < flights.length; i++) {
   row.layoutHorizontally();
   row.spacing = GRP_GAP;
 
-  // REAL: sin ":" cuando no hay dato, solo "···" con card libre
-  const realStr = f.real ? hhmm(f.real) : " ··· ";
+  const realStr = f.real ? hhmm(f.real) : "     ";
 
   const vals = [
     hhmm(f.prog),
