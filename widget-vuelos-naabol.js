@@ -412,9 +412,5 @@ for (let i = 0; i < flights.length; i++) {
 }
 
 w.addSpacer();
-const footer = w.addText(`UPD ${hhmm(new Date())}`);
-footer.font = Font.mediumMonospacedSystemFont(8);
-footer.textColor = MUTED_COLOR;
-
 Script.setWidget(w);
 Script.complete();
