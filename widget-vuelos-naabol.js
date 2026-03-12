@@ -4,7 +4,7 @@
  *************************************************/
 
 const HOURS_AHEAD = 12;
-const MAX_FLIGHTS = 10;
+const MAX_FLIGHTS = 13;
 
 /***********************
  * AEROPUERTOS NAABOL
@@ -12,18 +12,18 @@ const MAX_FLIGHTS = 10;
 const AIRPORT_PARAM = (args.widgetParameter || "VVI").toUpperCase();
 
 const AIRPORTS = {
-  VVI: { name: "Viru Viru (VVI)", query: "Viru%20Viru" },
-  LPB: { name: "El Alto (LPB)", query: "El%20Alto" },
-  CBB: { name: "Cochabamba (CBB)", query: "Cochabamba" },
-  TJA: { name: "Tarija (TJA)", query: "Tarija" },
-  SRE: { name: "Sucre (SRE)", query: "Sucre" },
-  ORU: { name: "Oruro (ORU)", query: "Oruro" },
-  UYU: { name: "Uyuni (UYU)", query: "Uyuni" },
-  CIJ: { name: "Cobija (CIJ)", query: "Cobija" },
-  RIB: { name: "Riberalta (RIB)", query: "Riberalta" },
-  RBQ: { name: "Rurrenabaque (RBQ)", query: "Rurrenabaque" },
-  TDD: { name: "Trinidad (TDD)", query: "Trinidad" },
-  GYA: { name: "Guayaramerín (GYA)", query: "Guayaramerin" }
+  VVI: { name: "Viru Viru (VVI)", city: "Santa Cruz", query: "Viru%20Viru" },
+  LPB: { name: "El Alto (LPB)", city: "La Paz", query: "El%20Alto" },
+  CBB: { name: "Cochabamba (CBB)", city: "Cochabamba", query: "Cochabamba" },
+  TJA: { name: "Tarija (TJA)", city: "Tarija", query: "Tarija" },
+  SRE: { name: "Sucre (SRE)", city: "Sucre", query: "Sucre" },
+  ORU: { name: "Oruro (ORU)", city: "Oruro", query: "Oruro" },
+  UYU: { name: "Uyuni (UYU)", city: "Uyuni", query: "Uyuni" },
+  CIJ: { name: "Cobija (CIJ)", city: "Cobija", query: "Cobija" },
+  RIB: { name: "Riberalta (RIB)", city: "Riberalta", query: "Riberalta" },
+  RBQ: { name: "Rurrenabaque (RBQ)", city: "Rurrenabaque", query: "Rurrenabaque" },
+  TDD: { name: "Trinidad (TDD)", city: "Trinidad", query: "Trinidad" },
+  GYA: { name: "Guayaramerín (GYA)", city: "Guayaramerín", query: "Guayaramerin" }
 };
 
 const AIRPORT = AIRPORTS[AIRPORT_PARAM] || AIRPORTS.VVI;
@@ -37,13 +37,20 @@ const URL_OPS =
   `https://fids.naabol.gob.bo/Fids/operativo/vuelos?aero=${AIRPORT.query}&tipo=S`;
 
 /***********************
- * COLORES
+ * COLORES – Estilo split-flap board
  ***********************/
-const ZEBRA_BG = Color.dynamic(new Color("#F2F2F7"), new Color("#2C2C2E"));
-const CANCEL_BG = Color.dynamic(new Color("#FFE5E5"), new Color("#3A1E1E"));
-const PRE_COLOR = Color.dynamic(new Color("#007AFF"), new Color("#64B5F6"));
-const EMB_COLOR = Color.dynamic(new Color("#34C759"), new Color("#81C784"));
-const DEM_COLOR = Color.dynamic(new Color("#FF3B30"), new Color("#FF6961"));
+const BOARD_BG = new Color("#0A0A0A");
+const CARD_BG = new Color("#1C1C1E");
+const HEADER_COLOR = new Color("#FFFFFF");
+const COL_HEADER_COLOR = new Color("#CCCCCC");
+const TEXT_COLOR = new Color("#FFD600");
+const PRE_COLOR = new Color("#FFD600");
+const EMB_COLOR = new Color("#4CAF50");
+const DEM_COLOR = new Color("#FF3D00");
+const CAN_COLOR = new Color("#FF3D00");
+const OK_COLOR = new Color("#FFFFFF");
+const UPD_COLOR = new Color("#FF9800");
+const MUTED_COLOR = new Color("#555555");
 
 /***********************
  * IATA MAPS
@@ -56,6 +63,10 @@ const AIRLINE_IATA = {
   "ECO JET": "EO",
   "AMASZONAS": "Z8",
   "LATAM": "LA",
+  "LATAM AIRLINES": "LA",
+  "LATAM AIRLINES GROUP": "LA",
+  "LAN": "LA",
+  "LAN AIRLINES": "LA",
   "SKY": "H2",
   "AVIANCA": "AV",
   "COPA": "CM",
@@ -161,16 +172,16 @@ function todayWithHHMM(x) {
 function hhmm(d) {
   return d
     ? d.toLocaleTimeString("es-BO", { hour: "2-digit", minute: "2-digit", hour12: false })
-    : "···";
+    : "     ";
 }
 
 function destinationIATA(route) {
-  if (!route) return "---";
+  if (!route) return "--- ";
   const parts = route.split("-").map(x => x.trim()).filter(Boolean);
   const first = parts[0].toUpperCase();
   const extra = parts.length - 1;
   const iata = DEST_IATA[first] || "---";
-  return extra > 0 ? `${iata} (${extra})` : iata;
+  return extra > 0 ? `${iata}+` : `${iata} `;
 }
 
 function statusInfo(obs) {
@@ -286,69 +297,124 @@ const flights = [...flightsFromItin, ...flightsFromOps]
   .slice(0, MAX_FLIGHTS);
 
 /***********************
- * WIDGET FINAL (SIN CAMBIOS)
+ * WIDGET – Estilo tablero aeropuerto
  ***********************/
 const w = new ListWidget();
-w.setPadding(14, 16, 12, 16);
+w.backgroundColor = BOARD_BG;
+w.setPadding(10, 12, 8, 12);
 
-const h = w.addStack();
-h.addText("✈️").font = Font.systemFont(20);
-h.addSpacer(6);
-h.addText(`Salidas · ${AIRPORT.name}`).font = Font.boldSystemFont(17);
+// Header: icono + DEPARTURES ... reloj (estilo flight board)
+const hdr = w.addStack();
+hdr.layoutHorizontally();
+hdr.centerAlignContent();
+const sym = SFSymbol.named("airplane.departure");
+sym.applyBoldWeight();
+const icon = hdr.addImage(sym.image);
+icon.imageSize = new Size(22, 22);
+icon.tintColor = HEADER_COLOR;
+hdr.addSpacer(6);
+const title = hdr.addText(`DEPARTURES - ${AIRPORT_PARAM}`);
+title.font = Font.boldMonospacedSystemFont(16);
+title.textColor = HEADER_COLOR;
+title.lineLimit = 1;
+hdr.addSpacer();
+const clock = hdr.addText(hhmm(new Date()));
+clock.font = Font.boldMonospacedSystemFont(16);
+clock.textColor = new Color("#4CAF50");
 
-w.addSpacer(8);
+w.addSpacer(10);
 
-const COLS = [52, 52, 78, 60, 56];
-const HEAD = ["PROG", "REAL", "VUELO", "EST", "DST"];
+// Helper: tira continua de cards (estilo split-flap real)
+// 21 cards/fila: TIME(6) + sep(1) + DST(3) + sep(1) + FLIGHT(6) + sep(1) + RMKS(3)
+// 21 × 14 + 20 × 1 = 314px → llena el ancho
+const CHAR_W = 14;
+const FLAP_H = 20;
+const FONT_SZ = 12;
+const SEP_CARDS = 1;
+
+const COLON_W = 6;
+
+function addCard(parent, ch, color) {
+  const isColon = ch === ":";
+  const flap = parent.addStack();
+  flap.size = new Size(isColon ? COLON_W : CHAR_W, FLAP_H);
+  flap.backgroundColor = CARD_BG;
+  flap.cornerRadius = 2;
+  flap.centerAlignContent();
+  if (ch && ch !== " ") {
+    const t = flap.addText(ch);
+    t.font = Font.boldMonospacedSystemFont(FONT_SZ);
+    t.textColor = color;
+  }
+}
+
+function addBoardRow(parent, segments) {
+  const row = parent.addStack();
+  row.layoutHorizontally();
+  row.spacing = 1;
+  segments.forEach((seg, i) => {
+    if (i > 0) {
+      for (let s = 0; s < SEP_CARDS; s++) addCard(row, " ", TEXT_COLOR);
+    }
+    for (const ch of seg.text) addCard(row, ch, seg.color);
+  });
+  addCard(row, " ", TEXT_COLOR);
+}
+
+// Columnas: TIME(5), DST(4), FLIGHT(6), RMKS(3)
+const COL_CHARS = [5, 4, 6, 3];
+const COL_COLONS = [1, 0, 0, 0];
+const COL_LABELS = ["TIME", "DST", "FLIGHT", "RMKS"];
+
+function colWidth(i) {
+  const normal = COL_CHARS[i] - COL_COLONS[i];
+  const colons = COL_COLONS[i];
+  return normal * CHAR_W + colons * COLON_W + (COL_CHARS[i] - 1);
+}
 
 const th = w.addStack();
 th.layoutHorizontally();
-HEAD.forEach((t, i) => {
+th.spacing = 1;
+COL_LABELS.forEach((label, i) => {
+  if (i > 0) {
+    const sepW = SEP_CARDS * CHAR_W + (SEP_CARDS - 1);
+    th.addSpacer(sepW + 1);
+  }
   const s = th.addStack();
-  s.size = new Size(COLS[i], 0);
+  s.size = new Size(colWidth(i), 0);
   s.centerAlignContent();
-  const tx = s.addText(t);
-  tx.font = Font.systemFont(11);
-  tx.textOpacity = 0.5;
+  const tx = s.addText(label);
+  tx.font = Font.boldMonospacedSystemFont(8);
+  tx.textColor = COL_HEADER_COLOR;
 });
 
-w.addSpacer(4);
+w.addSpacer(6);
 
+// Filas de vuelos – tira continua de cards
 for (let i = 0; i < flights.length; i++) {
   const f = flights[i];
-  const bg = w.addStack();
-  bg.layoutVertically();
 
-  if (f.est.canceled) bg.backgroundColor = CANCEL_BG;
-  else if (i % 2 === 1) bg.backgroundColor = ZEBRA_BG;
+  const hasReal = !!f.real;
+  const timeStr = hasReal ? hhmm(f.real) : hhmm(f.prog);
+  const timeColor = hasReal ? UPD_COLOR : TEXT_COLOR;
 
-  bg.cornerRadius = 8;
-  bg.setPadding(3, 6, 3, 6);
+  let estColor;
+  if (f.est.preBoarding) estColor = PRE_COLOR;
+  else if (f.est.boarding) estColor = EMB_COLOR;
+  else if (f.est.delayed) estColor = DEM_COLOR;
+  else if (f.est.canceled) estColor = CAN_COLOR;
+  else estColor = OK_COLOR;
 
-  const r = bg.addStack();
-  r.layoutHorizontally();
-
-  [hhmm(f.prog), hhmm(f.real), f.vuelo, f.est.text, f.dest].forEach((val, j) => {
-    const s = r.addStack();
-    s.size = new Size(COLS[j], 0);
-    const t = s.addText(val);
-    t.font = j <= 2
-      ? Font.mediumMonospacedSystemFont(13)
-      : Font.systemFont(12);
-    if (j === 3) {
-      if (f.est.preBoarding) t.textColor = PRE_COLOR;
-      else if (f.est.boarding) t.textColor = EMB_COLOR;
-      else if (f.est.delayed) t.textColor = DEM_COLOR;
-    }
-  });
+  addBoardRow(w, [
+    { text: timeStr, color: timeColor },
+    { text: f.dest.padEnd(4).slice(0, 4), color: TEXT_COLOR },
+    { text: f.vuelo.padEnd(6).slice(0, 6), color: TEXT_COLOR },
+    { text: f.est.text.padEnd(3).slice(0, 3), color: estColor }
+  ]);
 
   w.addSpacer(2);
 }
 
-w.addSpacer(4);
-const footer = w.addText(`Actualizado ${hhmm(new Date())}`);
-footer.font = Font.systemFont(10);
-footer.textOpacity = 0.45;
-
+w.addSpacer();
 Script.setWidget(w);
 Script.complete();

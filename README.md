@@ -148,7 +148,7 @@ El widget solo muestra vuelos que salen dentro de las próximas X horas.
 | Parámetro | Valor |
 |-----------|-------|
 | Ventana futura | 12 horas |
-| Máximo de vuelos mostrados | 10 |
+| Máximo de vuelos mostrados | 13 |
 
 > **Excepción:** Vuelos con estado activo (PRE, EMB, DEM) se muestran siempre, aunque su hora programada ya haya pasado. Esto evita que vuelos demorados desaparezcan del widget.
 
@@ -185,10 +185,11 @@ Los estados se normalizan a códigos cortos.
 | OK | Normal / Sin observación |
 
 ### Reglas visuales:
-- **PRE** → texto azul
-- **EMB** → texto verde
-- **DEM** → texto rojo
-- **CAN** → fila con fondo rojo
+- **PRE** → texto amarillo (`#FFD600`)
+- **EMB** → texto verde (`#4CAF50`)
+- **DEM** → texto rojo (`#FF3D00`)
+- **CAN** → texto rojo (`#FF3D00`)
+- **OK** → texto blanco (`#FFFFFF`)
 - **PRE** siempre tiene prioridad sobre EMB (evita errores de interpretación)
 
 > El estado se detecta tanto en español (DEMORADO, EMBARQUE) como en inglés (DELAYED, BOARDING).
@@ -233,8 +234,10 @@ SANTA CRUZ - ASUNCION - MIAMI
 
 ### Resultado mostrado:
 ```
-VVI (2)
+VVI+
 ```
+
+El `+` indica que el vuelo tiene escalas adicionales. Vuelos directos muestran solo el código IATA con espacio: `VVI `.
 
 > Esto mantiene el widget legible sin perder información relevante.
 
@@ -242,22 +245,63 @@ VVI (2)
 
 ## 13. Diseño del Widget
 
+### Estilo visual: Flight Board (tablero de aeropuerto)
+
+El widget replica la estética de los tableros de salidas de aeropuerto clásicos (split-flap / FIDS):
+
+- Header: icono SF Symbol `airplane.departure` + "DEPARTURES" en blanco + reloj en verde
+- Fondo negro (`#0A0A0A`) con cards oscuras por carácter (`#1C1C1E`)
+- Cada carácter se renderiza en su propia "card" simulando un flap mecánico
+
 ### Columnas mostradas:
 
-| Columna | Descripción |
-|---------|-------------|
-| PROG | Hora programada |
-| REAL | Hora real |
-| VUELO | Aerolínea + número |
-| EST | Estado |
-| DST | Destino (compactado) |
+| Columna | Label | Chars | Descripción |
+|---------|-------|-------|-------------|
+| TIME | TIME | 5 | Hora (HH:MM) — naranja si fue actualizada, amarillo si es programada |
+| DST | DST | 4 | Destino IATA + `+` si tiene escalas (ej: `LIM+`) |
+| FLIGHT | FLIGHT | 6 | Aerolínea + número de vuelo |
+| RMKS | RMKS | 3 | Estado / Remarks |
+
+> **Nota:** La columna REAL fue eliminada. Si existe hora real, se muestra en TIME en color naranja (`#FF9800`). Si no hay actualización, se muestra la hora programada en amarillo (`#FFD600`).
+
+### Layout de cards:
+
+Cada fila es una tira continua de cards uniformes (estilo split-flap real):
+- `CHAR_W = 14px` por card, `COLON_W = 6px` para `:` (más compacto)
+- `FLAP_H = 20px` de alto, `FONT_SZ = 12`
+- 1 card vacía como separador entre columnas
+- 1 card extra al final de cada fila
+
+### Espaciado vertical:
+
+| Zona | Separación |
+|------|------------|
+| Header → títulos de columna | 10px |
+| Títulos de columna → filas de vuelos | 6px |
+| Entre filas de vuelos | 2px |
+
+### Colores:
+
+| Elemento | Color |
+|----------|-------|
+| Header (DEPARTURES) | Blanco `#FFFFFF` |
+| Títulos de columna | Gris claro `#CCCCCC` |
+| Datos de vuelos | Amarillo `#FFD600` |
+| Hora actualizada | Naranja `#FF9800` |
+| Reloj | Verde `#4CAF50` |
+| OK | Blanco `#FFFFFF` |
+| EMB | Verde `#4CAF50` |
+| PRE | Amarillo `#FFD600` |
+| DEM / CAN | Rojo `#FF3D00` |
 
 ### Características visuales:
-- Diseño ultra denso
-- Zebra rows
+- Estilo split-flap board de aeropuerto (tira continua de cards)
+- Cards individuales por carácter con bordes redondeados
+- Card de `:` más angosta para horas compactas
+- Separadores entre columnas son cards vacías (no espacios)
 - Encabezados centrados
-- Fuentes monoespaciadas para horas y vuelos
-- Sin íconos innecesarios
+- Fuentes monoespaciadas (bold) para todo el contenido
+- Icono nativo iOS (SF Symbol) en el header
 - Optimizado para lectura rápida
 
 ---
@@ -274,17 +318,42 @@ Por limitaciones de Scriptable:
 
 ---
 
-## 15. Estado del Proyecto
+## 15. Tests
+
+El proyecto incluye una suite de tests con Jest para validar la lógica de negocio.
+
+### Ejecutar tests:
+```bash
+npm install
+npm test
+```
+
+### Cobertura:
+
+| Suite | Tests | Cubre |
+|-------|-------|-------|
+| `helpers.test.js` | 41 | `airlineCode`, `normalizeHHMM`, `todayWithHHMM`, `hhmm`, `destinationIATA`, `statusInfo`, `getHoraReal`, integridad de mapas IATA/destinos |
+| `exchange.test.js` | 5 | Endpoint de tipo de cambio: respuesta OK, upstream error, fetch error, validación de headers |
+
+### Estructura:
+- `helpers.js` — Módulo con funciones puras extraídas del widget para testing
+- `__tests__/helpers.test.js` — Tests de lógica de vuelos
+- `__tests__/exchange.test.js` — Tests del endpoint de tipo de cambio
+
+---
+
+## 16. Estado del Proyecto
 
 **Estado actual: ESTABLE / PRODUCCIÓN**
 
 - Usado en múltiples aeropuertos
 - Probado con vuelos nacionales e internacionales
 - Maneja inconsistencias reales de NAABOL
+- Suite de 46 tests automatizados con Jest
 
 ---
 
-## 16. Posibles Mejoras Futuras
+## 17. Posibles Mejoras Futuras
 
 - [ ] Llegadas de vuelos
 - [ ] Toggle salidas / llegadas
