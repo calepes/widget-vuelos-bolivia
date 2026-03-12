@@ -3,11 +3,11 @@
 // icon-color: deep-blue; icon-glyph: plane-departure;
 
 const REPO_OWNER = "calepes";
-const REPO_NAME = "widget-vuelos-bolivia";
+const REPO_NAME = "Aeropuertos-Bolivia";
 const BRANCH = "main";
-const FILE = "widget-vuelos-naabol.js";
+const FILE = "widget/widget-vuelos-naabol.js";
 
-const API_URL = "https://api.github.com/repos/" + REPO_OWNER + "/" + REPO_NAME + "/contents/" + FILE + "?ref=" + encodeURIComponent(BRANCH);
+const RAW_URL = "https://raw.githubusercontent.com/" + REPO_OWNER + "/" + REPO_NAME + "/" + BRANCH + "/" + FILE;
 
 const fm = FileManager.iCloud();
 const dir = fm.joinPath(fm.documentsDirectory(), "vuelos-cache");
@@ -20,9 +20,8 @@ if (!fm.fileExists(dir)) {
 let code;
 
 try {
-  const req = new Request(API_URL);
+  const req = new Request(RAW_URL);
   req.timeoutInterval = 10;
-  req.headers = { Accept: "application/vnd.github.v3.raw" };
   code = await req.loadString();
 
   if (code && code.length > 100 && !code.includes('"message":"Not Found"')) {
