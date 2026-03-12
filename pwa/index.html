@@ -54,16 +54,23 @@
       margin-bottom: 12px;
     }
     .board-header .icon {
-      font-size: 30px;
+      font-size: 28px;
       margin-right: 10px;
     }
+    .board-header .title-block { flex: 1; }
     .board-header .title {
       font-family: -apple-system, 'SF Pro Display', 'Helvetica Neue', Arial, sans-serif;
-      font-size: 24px;
+      font-size: 22px;
       font-weight: 700;
       color: #FFFFFF;
-      letter-spacing: 2px;
-      flex: 1;
+      letter-spacing: 3px;
+    }
+    .board-header .subtitle {
+      font-family: -apple-system, 'SF Pro Display', 'Helvetica Neue', Arial, sans-serif;
+      font-size: 12px;
+      color: #888;
+      letter-spacing: 1px;
+      margin-top: 1px;
     }
     .board-header .clock {
       font-size: 16px;
@@ -163,7 +170,10 @@
     </div>
     <div class="board-header">
       <span class="icon">&#x1F6EB;</span>
-      <span class="title">DEPARTURES <span id="airport-name">- Viru Viru</span></span>
+      <div class="title-block">
+        <div class="title">DEPARTURES</div>
+        <div class="subtitle" id="airport-name">Viru Viru (VVI)</div>
+      </div>
       <span class="clock" id="clock"></span>
       <button class="refresh-btn" id="refresh-btn" onclick="manualRefresh()">&#x21BB;</button>
     </div>
@@ -502,7 +512,7 @@
       sel.addEventListener('change', () => {
         currentAirport = sel.value;
         const airport = AIRPORTS[currentAirport];
-        document.getElementById('airport-name').textContent = '- ' + airport.name.split('(')[0].trim();
+        document.getElementById('airport-name').textContent = airport.name;
         loadFlights();
       });
     }
