@@ -318,17 +318,42 @@ Por limitaciones de Scriptable:
 
 ---
 
-## 15. Estado del Proyecto
+## 15. Tests
+
+El proyecto incluye una suite de tests con Jest para validar la lógica de negocio.
+
+### Ejecutar tests:
+```bash
+npm install
+npm test
+```
+
+### Cobertura:
+
+| Suite | Tests | Cubre |
+|-------|-------|-------|
+| `helpers.test.js` | 41 | `airlineCode`, `normalizeHHMM`, `todayWithHHMM`, `hhmm`, `destinationIATA`, `statusInfo`, `getHoraReal`, integridad de mapas IATA/destinos |
+| `exchange.test.js` | 5 | Endpoint de tipo de cambio: respuesta OK, upstream error, fetch error, validación de headers |
+
+### Estructura:
+- `helpers.js` — Módulo con funciones puras extraídas del widget para testing
+- `__tests__/helpers.test.js` — Tests de lógica de vuelos
+- `__tests__/exchange.test.js` — Tests del endpoint de tipo de cambio
+
+---
+
+## 16. Estado del Proyecto
 
 **Estado actual: ESTABLE / PRODUCCIÓN**
 
 - Usado en múltiples aeropuertos
 - Probado con vuelos nacionales e internacionales
 - Maneja inconsistencias reales de NAABOL
+- Suite de 46 tests automatizados con Jest
 
 ---
 
-## 16. Posibles Mejoras Futuras
+## 17. Posibles Mejoras Futuras
 
 - [ ] Llegadas de vuelos
 - [ ] Toggle salidas / llegadas
