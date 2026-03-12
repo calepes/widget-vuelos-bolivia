@@ -13,26 +13,34 @@
     * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
     body {
-      font-family: -apple-system, 'SF Pro Text', system-ui, sans-serif;
-      background: #0A0A0A;
+      font-family: 'SF Mono', 'Menlo', 'Courier New', monospace;
+      background: #111;
       color: #FFD600;
       -webkit-font-smoothing: antialiased;
       min-height: 100vh;
-      padding: max(12px, env(safe-area-inset-top)) 12px 12px 12px;
     }
 
-    .container { max-width: 480px; margin: 0 auto; }
+    .board {
+      background:
+        radial-gradient(circle, #1a1a1a 0.5px, transparent 0.5px),
+        #0d0d0d;
+      background-size: 4px 4px;
+      padding: max(14px, env(safe-area-inset-top)) 10px 14px 10px;
+      min-height: 100vh;
+      max-width: 600px;
+      margin: 0 auto;
+    }
 
     /* Selector */
     .selector { margin-bottom: 10px; }
     .selector select {
       width: 100%;
       padding: 8px 12px;
-      background: #1C1C1E;
-      color: #FFFFFF;
+      background: #1a1a1a;
+      color: #FFD600;
       border: 1px solid #333;
-      border-radius: 8px;
-      font-size: 14px;
+      border-radius: 4px;
+      font-size: 13px;
       font-family: inherit;
       appearance: none;
       -webkit-appearance: none;
@@ -43,110 +51,130 @@
     .board-header {
       display: flex;
       align-items: center;
-      margin-bottom: 10px;
+      margin-bottom: 12px;
     }
-    .board-header .icon { font-size: 20px; margin-right: 6px; }
+    .board-header .icon {
+      font-size: 30px;
+      margin-right: 10px;
+    }
     .board-header .title {
-      font: bold 16px 'SF Mono', 'Menlo', 'Courier New', monospace;
+      font-family: -apple-system, 'SF Pro Display', 'Helvetica Neue', Arial, sans-serif;
+      font-size: 24px;
+      font-weight: 700;
       color: #FFFFFF;
+      letter-spacing: 2px;
       flex: 1;
     }
     .board-header .clock {
-      font: bold 16px 'SF Mono', 'Menlo', 'Courier New', monospace;
-      color: #4CAF50;
+      font-size: 16px;
+      font-weight: bold;
+      color: #FFD600;
     }
     .refresh-btn {
       background: none;
       border: none;
-      color: #4CAF50;
+      color: #FFD600;
       font-size: 18px;
       cursor: pointer;
       margin-left: 8px;
       padding: 2px 4px;
+      opacity: 0.6;
     }
-    .refresh-btn:active { opacity: 0.5; }
+    .refresh-btn:active { opacity: 0.3; }
     .refresh-btn.spinning { animation: spin 0.8s linear; }
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* Column headers — flex weights match flap row (char + gaps) */
+    /* Column headers */
     .col-headers {
       display: flex;
       gap: 1px;
+      padding: 8px 0;
+      border-bottom: 2px solid #666;
       margin-bottom: 6px;
-      width: 100%;
     }
     .col-label {
-      font: bold 9px 'SF Mono', 'Menlo', 'Courier New', monospace;
+      font-family: -apple-system, 'SF Pro Display', 'Helvetica Neue', Arial, sans-serif;
+      font-size: 13px;
+      font-weight: 600;
       color: #CCCCCC;
-      text-align: center;
+      letter-spacing: 1px;
     }
-    /* Flex weights: each "char" = 1, colon = 0.4, sep = 0.3 */
-    /* TIME = 2 + 0.4 + 2 = 4.4, DST = 4, FLIGHT = 6, RMKS = 3, seps between = 0.3 each */
-    .col-time { flex: 4.4; }
-    .col-sep { flex: 0.3; }
-    .col-dst { flex: 4; }
+    .col-time { flex: 5; }
+    .col-sep { flex: 1.5; }
+    .col-dest { flex: 11; }
     .col-flight { flex: 6; }
-    .col-rmks { flex: 3; }
+    .col-rmks { flex: 9; }
 
     /* Flight rows */
     .flight-row {
       display: flex;
       gap: 1px;
       margin-bottom: 2px;
-      width: 100%;
     }
 
-    /* Flap cards — flex to fill row */
+    /* Column groups within a row */
+    .col-group {
+      display: flex;
+      gap: 1px;
+    }
+    .cg-time { flex: 5; }
+    .cg-sep { flex: 1.5; }
+    .cg-dest { flex: 11; }
+    .cg-flight { flex: 6; }
+    .cg-rmks { flex: 9; }
+
+    /* Flap cards */
     .flap {
       display: inline-flex;
       align-items: center;
       justify-content: center;
       flex: 1;
-      height: 26px;
+      height: 24px;
       background: #1C1C1E;
       border-radius: 2px;
-      font: bold 14px 'SF Mono', 'Menlo', 'Courier New', monospace;
+      font-weight: bold;
+      font-size: clamp(9px, 2.8vw, 14px);
     }
     .flap-colon { flex: 0.4; }
-    .flap-sep { flex: 0.3; background: transparent; }
+    .flap-sep { background: #1C1C1E; }
 
     /* Status message */
     #status {
       text-align: center;
-      padding: 20px 0;
-      font: 14px 'SF Mono', 'Menlo', 'Courier New', monospace;
-      color: #555555;
+      padding: 30px 0;
+      font-size: 13px;
+      color: #555;
     }
     #status.error { color: #FF3D00; }
 
     /* Footer */
     .footer {
       text-align: center;
-      padding: 8px 0;
-      font-size: 10px;
-      color: #555555;
+      padding: 10px 0;
+      font-size: 9px;
+      color: #444;
     }
   </style>
 </head>
 <body>
-  <div class="container">
+  <div class="board">
     <div class="selector">
       <select id="airport-select"></select>
     </div>
     <div class="board-header">
       <span class="icon">&#x1F6EB;</span>
-      <span class="title">DEPARTURES — <span id="airport-code">VVI</span></span>
+      <span class="title">DEPARTURES <span id="airport-name">- Viru Viru</span></span>
       <span class="clock" id="clock"></span>
       <button class="refresh-btn" id="refresh-btn" onclick="manualRefresh()">&#x21BB;</button>
     </div>
     <div class="col-headers">
       <span class="col-label col-time">TIME</span>
       <span class="col-label col-sep"></span>
-      <span class="col-label col-dst">DST</span>
+      <span class="col-label col-dest">DESTINATION</span>
       <span class="col-label col-sep"></span>
       <span class="col-label col-flight">FLIGHT</span>
       <span class="col-label col-sep"></span>
-      <span class="col-label col-rmks">RMKS</span>
+      <span class="col-label col-rmks">REMARKS</span>
     </div>
     <div id="flights"></div>
     <div id="status">Cargando...</div>
@@ -157,8 +185,10 @@
     const PROXY_URL = 'https://aeropuertos-proxy.carlos-cb4.workers.dev';
     const HOURS_AHEAD = 12;
     const MAX_FLIGHTS = 13;
+    const DEST_CHARS = 11;
+    const RMKS_CHARS = 9;
 
-    // ===== AIRPORTS (exact copy from widget) =====
+    // ===== AIRPORTS =====
     const AIRPORTS = {
       VVI: { name: "Viru Viru (VVI)", city: "Santa Cruz", query: "Viru%20Viru" },
       LPB: { name: "El Alto (LPB)", city: "La Paz", query: "El%20Alto" },
@@ -174,7 +204,7 @@
       GYA: { name: "Guayaramerín (GYA)", city: "Guayaramerín", query: "Guayaramerin" }
     };
 
-    // ===== AIRLINE MAPS (exact copy from widget) =====
+    // ===== AIRLINE MAPS =====
     const AIRLINE_IATA = {
       "BOLIVIANA DE AVIACION": "OB", "BOLIVIANA DE AVIACIÓN": "OB", "BOA": "OB",
       "ECOJET": "EO", "ECO JET": "EO",
@@ -192,7 +222,7 @@
       "AIR EUROPA": "UX", "AIR EUROPA LINEAS AEREAS": "UX", "AIR EUROPA LÍNEAS AÉREAS": "UX"
     };
 
-    // ===== DESTINATION MAP (exact copy from widget) =====
+    // ===== DESTINATION MAP =====
     const DEST_IATA = {
       "SANTA CRUZ": "VVI", "VIRU VIRU": "VVI",
       "LA PAZ": "LPB", "EL ALTO": "LPB",
@@ -212,7 +242,7 @@
       "CUIABA": "CGB", "CUIABÁ": "CGB"
     };
 
-    // ===== HELPER FUNCTIONS (exact logic from widget) =====
+    // ===== HELPER FUNCTIONS =====
     function airlineCode(name) {
       const key = (name || "").toUpperCase().trim();
       return AIRLINE_IATA[key] || AIRLINE_BACKUP[key] || null;
@@ -237,25 +267,27 @@
     function hhmm(d) {
       return d
         ? d.toLocaleTimeString("es-BO", { hour: "2-digit", minute: "2-digit", hour12: false })
-        : "     ";
+        : "";
     }
 
-    function destinationIATA(route) {
-      if (!route) return "--- ";
-      const parts = route.split("-").map(x => x.trim()).filter(Boolean);
-      const first = parts[0].toUpperCase();
-      const extra = parts.length - 1;
-      const iata = DEST_IATA[first] || "---";
-      return extra > 0 ? `${iata}+` : `${iata} `;
+    function destinationName(ruta0, ruta) {
+      // RUTA0 = "COCHABAMBA - SANTA CRUZ", RUTA = "COCHABAMBA>>SANTA CRUZ"
+      // Either can indicate multi-stop via "-" or ">>"
+      const source = ruta0 || ruta;
+      if (!source) return "";
+      // Split by " - " or ">>" to find stops
+      const stops = source.split(/\s*(?:>>|-)\s*/).filter(Boolean);
+      const name = stops[0].toUpperCase();
+      return stops.length > 1 ? name + "+" : name;
     }
 
     function statusInfo(obs) {
       const s = (obs || "").toUpperCase();
-      if (s.includes("PRE")) return { text: "PRE", preBoarding: true };
-      if (s.includes("EMBAR") || s.includes("ABORD")) return { text: "EMB", boarding: true };
-      if (s.includes("DEMOR") || s.includes("DELAY")) return { text: "DEM", delayed: true };
-      if (s.includes("CANCEL")) return { text: "CAN", canceled: true };
-      return { text: "OK" };
+      if (s.includes("PRE")) return { text: "PRE-BOARD", css: "pre", preBoarding: true };
+      if (s.includes("EMBAR") || s.includes("ABORD")) return { text: "BOARDING", css: "emb", boarding: true };
+      if (s.includes("DEMOR") || s.includes("DELAY")) return { text: "DELAYED", css: "dem", delayed: true };
+      if (s.includes("CANCEL")) return { text: "CANCELLED", css: "can", canceled: true };
+      return { text: "ON TIME", css: "ok" };
     }
 
     function getHoraReal(op, f) {
@@ -280,7 +312,6 @@
         proxyFetch(urlOps).catch(() => [])
       ]);
 
-      // Build ops map indexed by airline code + flight number
       const opsMap = {};
       for (const o of ops) {
         const code = airlineCode(o.NOMBRE_AEROLINEA);
@@ -292,7 +323,6 @@
       const now = Date.now();
       const max = now + HOURS_AHEAD * 3600 * 1000;
 
-      // Pass 1: flights from itinerario, enriched with ops
       const seenFlights = new Set();
       const flightsFromItin = (itin || [])
         .map(f => {
@@ -307,13 +337,19 @@
           const op = opsMap[vuelo] || {};
           const est = statusInfo(op.ESTADO || op.COMENTARIOS || f.OBSERVACION);
 
+          // Active flights bumped to tomorrow should stay today
+          const isActive = est.delayed || est.preBoarding || est.boarding;
+          if (isActive && prog.getTime() - Date.now() > HOURS_AHEAD * 3600 * 1000) {
+            prog.setDate(prog.getDate() - 1);
+          }
+
           return {
             prog,
             real: todayWithHHMM(getHoraReal(op, f)),
             ts: prog.getTime(),
             vuelo,
             est,
-            dest: destinationIATA(f.RUTA0 || f.RUTA || op.DESTINO)
+            destName: destinationName(f.RUTA0, f.RUTA || op.DESTINO)
           };
         })
         .filter(f => {
@@ -323,7 +359,6 @@
           return f.ts >= now && f.ts <= max;
         });
 
-      // Pass 2: flights only in ops (not in itinerario)
       const flightsFromOps = (ops || [])
         .map(o => {
           const code = airlineCode(o.NOMBRE_AEROLINEA);
@@ -337,13 +372,18 @@
 
           const est = statusInfo(o.ESTADO || o.COMENTARIOS);
 
+          const isActive = est.delayed || est.preBoarding || est.boarding;
+          if (isActive && prog.getTime() - Date.now() > HOURS_AHEAD * 3600 * 1000) {
+            prog.setDate(prog.getDate() - 1);
+          }
+
           return {
             prog,
             real: todayWithHHMM(o.HORA_REAL || o.HORA_REAL_SALIDA),
             ts: prog.getTime(),
             vuelo,
             est,
-            dest: destinationIATA(o.DESTINO || o.RUTA)
+            destName: destinationName(o.DESTINO, o.RUTA)
           };
         })
         .filter(f => {
@@ -353,7 +393,6 @@
           return f.ts >= now && f.ts <= max;
         });
 
-      // Combine, sort by real time (fallback to programmed), limit
       return [...flightsFromItin, ...flightsFromOps]
         .sort((a, b) => {
           const tA = a.real ? a.real.getTime() : a.ts;
@@ -364,24 +403,13 @@
     }
 
     // ===== DOM RENDERING =====
-    const COLORS = {
-      text: '#FFD600',
-      updated: '#FF9800',
+    const STATUS_COLORS = {
       ok: '#FFFFFF',
       pre: '#FFD600',
       emb: '#4CAF50',
       dem: '#FF3D00',
-      can: '#FF3D00',
-      muted: '#555555'
+      can: '#FF3D00'
     };
-
-    function statusColor(est) {
-      if (est.preBoarding) return COLORS.pre;
-      if (est.boarding) return COLORS.emb;
-      if (est.delayed) return COLORS.dem;
-      if (est.canceled) return COLORS.can;
-      return COLORS.ok;
-    }
 
     function createFlap(ch, color) {
       const el = document.createElement('span');
@@ -391,16 +419,37 @@
       return el;
     }
 
-    function createSegment(text, color) {
-      const frag = document.createDocumentFragment();
-      for (const ch of text) frag.appendChild(createFlap(ch, color));
-      return frag;
+    function createColGroup(text, maxChars, color, cssClass) {
+      const group = document.createElement('div');
+      group.className = 'col-group ' + cssClass;
+      let display = text;
+      // If text is too long and ends with +, truncate name but keep +
+      if (display.length > maxChars && display.endsWith('+')) {
+        display = display.slice(0, maxChars - 1) + '+';
+      }
+      const padded = display.padEnd(maxChars).slice(0, maxChars);
+      for (const ch of padded) {
+        group.appendChild(createFlap(ch, color));
+      }
+      return group;
     }
 
-    function createSeparator() {
-      const el = document.createElement('span');
-      el.className = 'flap flap-sep';
-      return el;
+    function createSepGroup() {
+      const group = document.createElement('div');
+      group.className = 'col-group cg-sep';
+      const flap = document.createElement('span');
+      flap.className = 'flap flap-sep';
+      group.appendChild(flap);
+      return group;
+    }
+
+    function createTimeGroup(timeStr, color) {
+      const group = document.createElement('div');
+      group.className = 'col-group cg-time';
+      for (const ch of timeStr) {
+        group.appendChild(createFlap(ch, color));
+      }
+      return group;
     }
 
     function renderBoard(flights) {
@@ -423,23 +472,16 @@
 
         const hasReal = !!f.real;
         const timeStr = hasReal ? hhmm(f.real) : hhmm(f.prog);
-        const timeColor = hasReal ? COLORS.updated : COLORS.text;
-        const estColor = statusColor(f.est);
+        const timeColor = hasReal ? '#FF9800' : '#FFD600';
+        const estColor = STATUS_COLORS[f.est.css] || '#FFD600';
 
-        // TIME (5 chars: HH:MM)
-        row.appendChild(createSegment(timeStr, timeColor));
-        // Separator
-        row.appendChild(createSeparator());
-        // DST (4 chars, padded)
-        row.appendChild(createSegment(f.dest.padEnd(4).slice(0, 4), COLORS.text));
-        // Separator
-        row.appendChild(createSeparator());
-        // FLIGHT (6 chars, padded)
-        row.appendChild(createSegment(f.vuelo.padEnd(6).slice(0, 6), COLORS.text));
-        // Separator
-        row.appendChild(createSeparator());
-        // RMKS (3 chars, padded)
-        row.appendChild(createSegment(f.est.text.padEnd(3).slice(0, 3), estColor));
+        row.appendChild(createTimeGroup(timeStr || '     ', timeColor));
+        row.appendChild(createSepGroup());
+        row.appendChild(createColGroup(f.destName, DEST_CHARS, '#FFD600', 'cg-dest'));
+        row.appendChild(createSepGroup());
+        row.appendChild(createColGroup(f.vuelo, 6, '#FFD600', 'cg-flight'));
+        row.appendChild(createSepGroup());
+        row.appendChild(createColGroup(f.est.text, RMKS_CHARS, estColor, 'cg-rmks'));
 
         container.appendChild(row);
       }
@@ -459,7 +501,8 @@
       }
       sel.addEventListener('change', () => {
         currentAirport = sel.value;
-        document.getElementById('airport-code').textContent = currentAirport;
+        const airport = AIRPORTS[currentAirport];
+        document.getElementById('airport-name').textContent = '- ' + airport.name.split('(')[0].trim();
         loadFlights();
       });
     }
