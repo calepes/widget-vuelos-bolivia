@@ -39,7 +39,7 @@ Worker idéntico al patrón de Combustible (`combustible-proxy`):
 - CORS headers: `Access-Control-Allow-Origin: *`
 - Deploy: `cd proxy && npx wrangler deploy`
 
-URL resultante: `https://aeropuertos-proxy.<account>.workers.dev`
+URL resultante: constante `PROXY_URL` en `index.html`, se actualiza tras el primer `wrangler deploy` (ej: `https://aeropuertos-proxy.carlos-cb4.workers.dev`)
 
 ## Fuentes de datos
 
@@ -109,6 +109,7 @@ Réplica visual del widget:
 | Estado EMB | Verde `#4CAF50` |
 | Estado DEM/CAN | Rojo `#FF3D00` |
 | Títulos columna | Gris `#CCCCCC` |
+| Filas vacías / placeholders | Gris muted `#555555` |
 
 ### Responsive
 
@@ -116,10 +117,16 @@ Réplica visual del widget:
 - Cards se escalan proporcionalmente al ancho de pantalla
 - Max-width en desktop para mantener legibilidad
 
+### Estados de error / vacío
+
+- **Proxy inalcanzable**: Mostrar "Error de conexión" en texto rojo sobre el board
+- **Sin vuelos**: Mostrar "No hay vuelos programados" centrado
+- **Cargando**: Mostrar "Cargando..." mientras se espera respuesta
+
 ### Refresh
 
 - Botón de refresh manual en el header
-- Auto-refresh cada 5 minutos
+- Auto-refresh cada 5 minutos (se pausa con `visibilitychange` cuando la pestaña está en background)
 - Indicador visual de última actualización
 
 ## PWA Manifest
@@ -141,8 +148,9 @@ Réplica visual del widget:
 
 ## Deploy
 
-- **PWA**: GitHub Pages desde el repo `Aeropuertos-Bolivia` (carpeta `pwa/`)
-- **Proxy**: Cloudflare Workers via `wrangler deploy`
+- **PWA**: GitHub Pages desde el repo `Aeropuertos-Bolivia` (carpeta `pwa/`). Base path será `/Aeropuertos-Bolivia/pwa/` — paths relativos en manifest y HTML deben considerar esto.
+- **Proxy**: Cloudflare Workers via `cd proxy && npx wrangler deploy`
+- **iOS home screen**: Incluir `<link rel="apple-touch-icon">` apuntando al SVG icon para compatibilidad iOS
 
 ## Diferencias con el widget Scriptable
 
