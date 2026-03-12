@@ -8,8 +8,8 @@ Repositorio monorepo para aplicaciones de aeropuertos bolivianos (NAABOL).
 
 ```
 widget/    — Widget de salidas de vuelos para iOS (Scriptable)
-pwa/       — Progressive Web App de salidas (en desarrollo, ver spec)
-proxy/     — Cloudflare Worker CORS proxy (por crear)
+pwa/       — Progressive Web App de salidas (deployada en GitHub Pages)
+proxy/     — Cloudflare Worker CORS proxy (deployado)
 docs/      — Specs de diseño
 ```
 
@@ -22,9 +22,19 @@ docs/      — Specs de diseño
 - `index.html` — Página web de tipo de cambio
 - `__tests__/` — Suite de tests Jest
 
-### PWA (`pwa/`) — En desarrollo
+### PWA (`pwa/`)
 
-Spec de diseño: `docs/superpowers/specs/2026-03-12-pwa-salidas-design.md`
+- `index.html` — App completa: HTML + CSS + JS inline, sin framework ni build tools
+- `manifest.json` — PWA manifest (standalone, tema negro)
+- `icons/` — SVG icons para PWA y favicon
+- Spec: `docs/superpowers/specs/2026-03-12-pwa-salidas-design.md`
+- **URL:** `https://apps.lepesqueur.net/Aeropuertos-Bolivia/pwa/`
+
+### Proxy (`proxy/`)
+
+- `worker.js` — Cloudflare Worker, whitelist solo `fids.naabol.gob.bo`
+- `wrangler.toml` — Config del worker
+- **URL:** `https://aeropuertos-proxy.carlos-cb4.workers.dev`
 
 ## Comandos
 
@@ -52,3 +62,6 @@ Para agregar tests: crear archivos `widget/__tests__/*.test.js`
 - El widget por defecto muestra VVI (Viru Viru, Santa Cruz)
 - El loader (`loader-scriptable.js`) baja el widget desde `raw.githubusercontent.com` (no usa la API de GitHub) con fallback a cache iCloud
 - Datos de vuelos vienen de `fids.naabol.gob.bo` — endpoints de itinerario (hora programada) y operativo (hora real + estado)
+- **Endpoint operativo NAABOL caído:** `/Fids/operativo/vuelos` devuelve 404. PWA y widget funcionan solo con itinerario. Si vuelve, se usará automáticamente.
+- **Sincronización PWA↔Widget:** Los mapas IATA y helpers están duplicados en `pwa/index.html` y `widget/widget-vuelos-naabol.js`. Al modificar uno, actualizar el otro.
+- **RUTA0 vs RUTA:** La API NAABOL usa `-` como separador en RUTA0 y `>>` en RUTA. Ambos indican multidestino.
