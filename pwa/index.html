@@ -68,41 +68,47 @@
     .refresh-btn.spinning { animation: spin 0.8s linear; }
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* Column headers */
+    /* Column headers — flex weights match flap row (char + gaps) */
     .col-headers {
       display: flex;
       gap: 1px;
       margin-bottom: 6px;
+      width: 100%;
     }
     .col-label {
-      font: bold 8px 'SF Mono', 'Menlo', 'Courier New', monospace;
+      font: bold 9px 'SF Mono', 'Menlo', 'Courier New', monospace;
       color: #CCCCCC;
       text-align: center;
     }
-    .col-time { width: 66px; }
-    .col-dst { width: 59px; margin-left: 15px; }
-    .col-flight { width: 89px; margin-left: 15px; }
-    .col-rmks { width: 44px; margin-left: 15px; }
+    /* Flex weights: each "char" = 1, colon = 0.4, sep = 0.3 */
+    /* TIME = 2 + 0.4 + 2 = 4.4, DST = 4, FLIGHT = 6, RMKS = 3, seps between = 0.3 each */
+    .col-time { flex: 4.4; }
+    .col-sep { flex: 0.3; }
+    .col-dst { flex: 4; }
+    .col-flight { flex: 6; }
+    .col-rmks { flex: 3; }
 
     /* Flight rows */
     .flight-row {
       display: flex;
       gap: 1px;
       margin-bottom: 2px;
+      width: 100%;
     }
 
-    /* Flap cards */
+    /* Flap cards — flex to fill row */
     .flap {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      width: 14px;
-      height: 20px;
+      flex: 1;
+      height: 26px;
       background: #1C1C1E;
       border-radius: 2px;
-      font: bold 12px 'SF Mono', 'Menlo', 'Courier New', monospace;
+      font: bold 14px 'SF Mono', 'Menlo', 'Courier New', monospace;
     }
-    .flap-colon { width: 6px; }
+    .flap-colon { flex: 0.4; }
+    .flap-sep { flex: 0.3; background: transparent; }
 
     /* Status message */
     #status {
@@ -135,8 +141,11 @@
     </div>
     <div class="col-headers">
       <span class="col-label col-time">TIME</span>
+      <span class="col-label col-sep"></span>
       <span class="col-label col-dst">DST</span>
+      <span class="col-label col-sep"></span>
       <span class="col-label col-flight">FLIGHT</span>
+      <span class="col-label col-sep"></span>
       <span class="col-label col-rmks">RMKS</span>
     </div>
     <div id="flights"></div>
@@ -389,7 +398,9 @@
     }
 
     function createSeparator() {
-      return createFlap(' ', COLORS.text);
+      const el = document.createElement('span');
+      el.className = 'flap flap-sep';
+      return el;
     }
 
     function renderBoard(flights) {
@@ -429,8 +440,6 @@
         row.appendChild(createSeparator());
         // RMKS (3 chars, padded)
         row.appendChild(createSegment(f.est.text.padEnd(3).slice(0, 3), estColor));
-        // Trailing empty card
-        row.appendChild(createSeparator());
 
         container.appendChild(row);
       }
