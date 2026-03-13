@@ -42,6 +42,7 @@ docs/      — Specs de diseño
 - `cd widget && npm install` — Instala dependencias (solo jest como devDependency)
 - `cd pwa && python3 -m http.server` — Dev server local para la PWA
 - `cd proxy && npx wrangler deploy` — Deploy del proxy CORS a Cloudflare
+- `curl -s "https://fids.naabol.gob.bo/Fids/itin/vuelos?aero=Viru%20Viru&tipo=S" | python3 -m json.tool` — Consultar API NAABOL directo (sin proxy)
 
 ## Tests
 
@@ -67,4 +68,5 @@ Para agregar tests: crear archivos `widget/__tests__/*.test.js`
 - **RUTA0 vs RUTA:** La API NAABOL usa `-` como separador en RUTA0 y `>>` en RUTA. Ambos indican multidestino.
 - **Cantidad de vuelos responsive:** La PWA calcula dinámicamente cuántos vuelos mostrar según la altura del viewport (mín 5). Se recalcula al rotar/redimensionar.
 - **PWA como ícono iOS:** No hay service worker. Para forzar actualización tras deploy, eliminar ícono y re-agregar desde Safari.
-- **Bug proxy query params:** El proxy pierde parámetros cuando la URL destino tiene `&` (ej: `&tipo=S` se interpreta como param del Worker). La URL destino se pasa URL-encoded vía `encodeURIComponent()` en la PWA, pero el endpoint directo de NAABOL funciona sin proxy.
+- **Proxy y query params:** La URL destino debe pasar por `encodeURIComponent()` al llamar al proxy, o los `&` se interpretan como params del Worker. La PWA ya lo hace correctamente.
+- **Dev local sin datos:** `python3 -m http.server` sirve la PWA pero el proxy CORS rechaza requests desde localhost. Para probar con datos reales, deployar a GitHub Pages.
