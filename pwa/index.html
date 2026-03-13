@@ -194,7 +194,25 @@
     // ===== CONFIG =====
     const PROXY_URL = 'https://aeropuertos-proxy.carlos-cb4.workers.dev';
     const HOURS_AHEAD = 12;
-    const MAX_FLIGHTS = 13;
+    const ROW_HEIGHT = 26; // 24px flap + 2px margin
+
+    function maxFlights() {
+      const sel = document.querySelector('.selector');
+      const hdr = document.querySelector('.board-header');
+      const cols = document.querySelector('.col-headers');
+      const ftr = document.querySelector('.footer');
+      const board = document.querySelector('.board');
+      const boardStyle = getComputedStyle(board);
+      const padTop = parseFloat(boardStyle.paddingTop);
+      const padBot = parseFloat(boardStyle.paddingBottom);
+      const chrome = padTop + padBot
+        + sel.offsetHeight + parseFloat(getComputedStyle(sel).marginBottom)
+        + hdr.offsetHeight + parseFloat(getComputedStyle(hdr).marginBottom)
+        + cols.offsetHeight + parseFloat(getComputedStyle(cols).marginBottom)
+        + ftr.offsetHeight;
+      const available = window.innerHeight - chrome;
+      return Math.max(5, Math.floor(available / ROW_HEIGHT));
+    }
     const DEST_CHARS = 11;
     const RMKS_CHARS = 9;
 
@@ -409,7 +427,7 @@
           const tB = b.real ? b.real.getTime() : b.ts;
           return tA - tB;
         })
-        .slice(0, MAX_FLIGHTS);
+        .slice(0, maxFlights());
     }
 
     // ===== DOM RENDERING =====
@@ -564,6 +582,13 @@
         loadFlights();
         startAutoRefresh();
       }
+    });
+
+    // ===== RECALC ON RESIZE =====
+    let resizeTimer;
+    window.addEventListener('resize', () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(() => loadFlights(), 200);
     });
 
     // ===== INIT =====
