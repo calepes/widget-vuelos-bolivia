@@ -7,65 +7,38 @@ const BRANCH = "main";
 const FILE = "widget/widget-vuelos-naabol.js";
 const RAW_URL = "https://raw.githubusercontent.com/" + REPO + "/" + BRANCH + "/" + FILE;
 
+const SCRIPT_NAME = "Vuelos-NAABOL-Widget";
 const fm = FileManager.iCloud();
-const cacheDir = fm.joinPath(fm.documentsDirectory(), "vuelos-cache");
-const cachePath = fm.joinPath(cacheDir, "widget-vuelos-naabol.js");
+const scriptPath = fm.joinPath(fm.documentsDirectory(), SCRIPT_NAME + ".js");
 
-if (!fm.fileExists(cacheDir)) fm.createDirectory(cacheDir, true);
-
-let code;
-
-// 1. Descargar widget desde GitHub
+// 1. Descargar widget desde GitHub y guardarlo como script
 try {
   const req = new Request(RAW_URL);
   req.timeoutInterval = 10;
   const resp = await req.loadString();
   if (resp && resp.length > 100 && !resp.includes('"message"')) {
-    code = resp;
-    fm.writeString(cachePath, code);
+    fm.writeString(scriptPath, resp);
+    console.log("Widget actualizado desde GitHub");
   } else {
-    throw new Error("Respuesta invalida de GitHub");
+    console.log("Respuesta invalida, usando version local");
   }
 } catch (e) {
-  // 2. Fallback: cache local en iCloud
-  console.log("Usando cache: " + e.message);
-  if (fm.fileExists(cachePath)) {
-    if (fm.isFileStoredIniCloud(cachePath) && !fm.isFileDownloaded(cachePath)) {
-      await fm.downloadFileFromiCloud(cachePath);
-    }
-    code = fm.readString(cachePath);
-  }
+  console.log("Sin conexion: " + e.message);
 }
 
-// 3. Ejecutar widget
-if (code && code.length > 100) {
-  try {
-    // Quitar Script.setWidget/complete del código para llamarlos desde aquí
-    let src = code;
-    src = src.replace(/Script\.setWidget\(w\);?/g, "");
-    src = src.replace(/Script\.complete\(\);?/g, "");
-    src = src.replace(/if\s*\(\s*!config\.runsInWidget\s*\)\s*\{[^}]*\}/g, "");
-    const w = await eval("(async () => { " + src + "; return w; })()");
-    Script.setWidget(w);
-    if (!config.runsInWidget) await w.presentLarge();
-  } catch (err) {
-    console.log("Error widget: " + err.message);
-    const w = new ListWidget();
-    w.backgroundColor = new Color("#0A0A0A");
-    const msg = w.addText("Error: " + err.message);
-    msg.font = Font.mediumSystemFont(12);
-    msg.textColor = new Color("#FF3D00");
-    msg.centerAlignText();
-    Script.setWidget(w);
+// 2. Ejecutar widget guardado
+if (fm.fileExists(scriptPath)) {
+  if (fm.isFileStoredIniCloud(scriptPath) && !fm.isFileDownloaded(scriptPath)) {
+    await fm.downloadFileFromiCloud(scriptPath);
   }
+  importModule(SCRIPT_NAME);
 } else {
   const w = new ListWidget();
   w.backgroundColor = new Color("#0A0A0A");
-  const msg = w.addText("Sin conexion y sin cache");
+  const msg = w.addText("Ejecuta primero desde la app");
   msg.font = Font.mediumSystemFont(13);
   msg.textColor = new Color("#FF3D00");
   msg.centerAlignText();
   Script.setWidget(w);
+  Script.complete();
 }
-
-Script.complete();
