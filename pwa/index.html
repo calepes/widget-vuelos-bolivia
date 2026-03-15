@@ -68,43 +68,33 @@
 
     /* Airport selector */
     .airport-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
       margin-bottom: 10px;
-    }
-    .airport-select-wrap {
       position: relative;
     }
-    .airport-select-wrap select {
+    .airport-row select {
+      width: 100%;
       appearance: none;
       -webkit-appearance: none;
-      background: none;
-      border: none;
+      background: #1a1a1a;
       color: #FFD600;
+      border: 1px solid #333;
+      border-radius: 4px;
       font-family: inherit;
-      font-size: 16px;
-      font-weight: 700;
-      letter-spacing: 2px;
-      padding: 0;
-      padding-right: 16px;
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      padding: 8px 30px 8px 12px;
       cursor: pointer;
     }
-    .airport-select-wrap::after {
+    .airport-row::after {
       content: '▾';
       position: absolute;
-      right: 2px;
+      right: 12px;
       top: 50%;
       transform: translateY(-50%);
       color: #666;
-      font-size: 10px;
-      pointer-events: none;
-    }
-    .airport-city {
-      font-family: -apple-system, 'SF Pro Display', 'Helvetica Neue', Arial, sans-serif;
       font-size: 12px;
-      color: #555;
-      margin-left: 4px;
+      pointer-events: none;
     }
     .refresh-btn:active { opacity: 0.3; }
     .refresh-btn.spinning { animation: spin 0.8s linear; }
@@ -191,10 +181,7 @@
       <button class="refresh-btn" id="refresh-btn" onclick="manualRefresh()">&#x21BB;</button>
     </div>
     <div class="airport-row">
-      <div class="airport-select-wrap">
-        <select id="airport-select"></select>
-      </div>
-      <span class="airport-city" id="airport-name">Santa Cruz</span>
+      <select id="airport-select"></select>
     </div>
     <div class="col-headers">
       <span class="col-label col-time">TIME</span>
@@ -548,8 +535,6 @@
       }
       sel.addEventListener('change', () => {
         currentAirport = sel.value;
-        const airport = AIRPORTS[currentAirport];
-        document.getElementById('airport-name').textContent = airport.city;
         loadFlights();
       });
     }
