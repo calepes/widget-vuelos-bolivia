@@ -44,7 +44,7 @@ if (code && code.length > 100) {
     src = src.replace(/if\s*\(\s*!config\.runsInWidget\s*\)\s*\{[^}]*\}/g, "");
     const w = await eval("(async () => { " + src + "; return w; })()");
     Script.setWidget(w);
-    if (!config.runsInWidget) await w.presentLarge();
+
     Script.complete();
   } catch (err) {
     console.log("Error widget: " + err.message);
