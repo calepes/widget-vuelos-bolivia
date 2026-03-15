@@ -4,7 +4,7 @@
  *************************************************/
 
 const HOURS_AHEAD = 12;
-const MAX_FLIGHTS = 13;
+const MAX_FLIGHTS = 15;
 
 /***********************
  * AEROPUERTOS NAABOL
