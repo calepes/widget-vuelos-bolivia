@@ -2,12 +2,7 @@
 // These must be at the very top of the file. Do not edit.
 // icon-color: deep-blue; icon-glyph: plane-departure;
 
-const REPO_OWNER = "calepes";
-const REPO_NAME = "Aeropuertos-Bolivia";
-const BRANCH = "main";
-const FILE = "widget/widget-vuelos-naabol.js";
-
-const RAW_URL = "https://raw.githubusercontent.com/" + REPO_OWNER + "/" + REPO_NAME + "/" + BRANCH + "/" + FILE;
+const RAW_URL = "https://raw.githubusercontent.com/calepes/Aeropuertos-Bolivia/main/widget/widget-vuelos-naabol.js";
 
 const fm = FileManager.iCloud();
 const dir = fm.joinPath(fm.documentsDirectory(), "vuelos-cache");
