@@ -29,12 +29,13 @@ const AIRPORTS = {
 const AIRPORT = AIRPORTS[AIRPORT_PARAM] || AIRPORTS.VVI;
 
 /***********************
- * URLS
+ * URLS (via proxy Cloudflare)
  ***********************/
-const URL_ITIN =
-  `https://fids.naabol.gob.bo/Fids/itin/vuelos?aero=${AIRPORT.query}&tipo=S`;
-const URL_OPS =
-  `https://fids.naabol.gob.bo/Fids/operativo/vuelos?aero=${AIRPORT.query}&tipo=S`;
+const PROXY = "https://aeropuertos-proxy.carlos-cb4.workers.dev/?url=";
+const BASE_ITIN = `https://fids.naabol.gob.bo/Fids/itin/vuelos?aero=${AIRPORT.query}&tipo=S`;
+const BASE_OPS = `https://fids.naabol.gob.bo/Fids/operativo/vuelos?aero=${AIRPORT.query}&tipo=S`;
+const URL_ITIN = PROXY + encodeURIComponent(BASE_ITIN);
+const URL_OPS = PROXY + encodeURIComponent(BASE_OPS);
 
 /***********************
  * COLORES – Estilo split-flap board
