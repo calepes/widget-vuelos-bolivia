@@ -427,4 +427,7 @@ for (let i = 0; i < flights.length; i++) {
 
 w.addSpacer();
 Script.setWidget(w);
+if (!config.runsInWidget) {
+  await w.presentLarge();
+}
 Script.complete();
