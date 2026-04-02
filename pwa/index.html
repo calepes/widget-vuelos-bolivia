@@ -226,6 +226,7 @@
     // ===== CONFIG =====
     const PROXY_URL = 'https://aeropuertos-proxy.carlos-cb4.workers.dev';
     const HOURS_AHEAD = 12;
+    const HOURS_BEHIND = 2; // lookback window for arrivals
     const ROW_HEIGHT = 26; // 24px flap + 2px margin
 
     function maxFlights() {
@@ -405,11 +406,13 @@
 
       const now = Date.now();
       const max = now + HOURS_AHEAD * 3600 * 1000;
+      const min = tipo === 'L' ? now - HOURS_BEHIND * 3600 * 1000 : now;
+      const timeFunc = tipo === 'L' ? todayExact : todayWithHHMM;
 
       const seenFlights = new Set();
       const flightsFromItin = (Array.isArray(itin) ? itin : [])
         .map(f => {
-          const prog = todayWithHHMM(f.HORA_PROGRAMADA || f.HORA_ESTIMADA);
+          const prog = timeFunc(f.HORA_PROGRAMADA || f.HORA_ESTIMADA);
           if (!prog) return null;
 
           const code = airlineCode(f.NOMBRE_AEROLINEA);
@@ -440,7 +443,7 @@
           if (!f) return false;
           const active = f.est.delayed || f.est.preBoarding || f.est.boarding || f.est.landed || f.est.canceled;
           if (active) return true;
-          return f.ts >= now && f.ts <= max;
+          return f.ts >= min && f.ts <= max;
         });
 
       const flightsFromOps = (Array.isArray(ops) ? ops : [])
@@ -451,7 +454,7 @@
 
           if (seenFlights.has(vuelo)) return null;
 
-          const prog = todayWithHHMM(o.HORA_ESTIMADA || o.HORA_PROGRAMADA);
+          const prog = timeFunc(o.HORA_ESTIMADA || o.HORA_PROGRAMADA);
           if (!prog) return null;
 
           const est = statusInfo(o.ESTADO || o.COMENTARIOS);
@@ -478,7 +481,7 @@
           if (!f) return false;
           const active = f.est.delayed || f.est.preBoarding || f.est.boarding || f.est.landed || f.est.canceled;
           if (active) return true;
-          return f.ts >= now && f.ts <= max;
+          return f.ts >= min && f.ts <= max;
         });
 
       return [...flightsFromItin, ...flightsFromOps]
