@@ -32,6 +32,7 @@ proxy/     — Cloudflare Worker para CORS proxy (deployado manualmente via wran
 - `cd widget && npm install` — Instala dependencias (solo jest como devDependency)
 - `cd pwa && python3 -m http.server` — Dev server local para la PWA
 - `curl -s "https://fids.naabol.gob.bo/Fids/itin/vuelos?aero=Viru%20Viru&tipo=S" | python3 -m json.tool` — Consultar API NAABOL (tipo=S salidas, tipo=L llegadas)
+- `cd proxy && npx wrangler deploy` — Deploy proxy a Cloudflare (requiere auth en Cloudflare)
 
 ## Tests
 
